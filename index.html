@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echoes of my fist</title>
+    <title>Echoes of my fist - Light Novel Reader</title>
     <link rel="icon" href="eomf-01.jpg">
     <style>
         * {
@@ -166,19 +166,19 @@
         }
 
         .back-button {
-            background: #8b5cf6;
+            background: rgba(99, 102, 241, 0.3);
             color: white;
-            border: none;
+            border: 2px solid rgba(99, 102, 241, 0.5);
             padding: 12px 25px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
-            margin-bottom: 20px;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .back-button:hover {
-            background: #7c3aed;
+            background: rgba(99, 102, 241, 0.5);
+            border-color: #6366f1;
         }
 
         .chapter-count {
@@ -508,9 +508,14 @@
                     </button>
                     <button class="back-button" onclick="closeReader()">📚 Chapters</button>
                 </div>
-                <button class="chapter-nav-btn" id="next-chapter" onclick="navigateChapter('next')">
-                    Next →
-                </button>
+                <div class="nav-group">
+                    <button class="fullscreen-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
+                        <span id="fullscreen-icon">⛶</span> Fullscreen
+                    </button>
+                    <button class="chapter-nav-btn" id="next-chapter" onclick="navigateChapter('next')">
+                        Next →
+                    </button>
+                </div>
             </div>
             <div class="reader-header">
                 <h2 class="reader-title" id="reader-title"></h2>
@@ -526,6 +531,17 @@
                 </div>
                 <button class="chapter-nav-btn" id="next-chapter-bottom" onclick="navigateChapter('next')">
                     Next →
+                </button>
+            </div>
+
+            <div class="auto-scroll-controls">
+                <div class="scroll-speed">
+                    <label>Speed:</label>
+                    <input type="range" id="scroll-speed" min="1" max="10" value="3" step="1">
+                    <span id="speed-value">3</span>
+                </div>
+                <button class="scroll-toggle" id="scroll-toggle" onclick="toggleAutoScroll()">
+                    ▶ Start Auto-Scroll
                 </button>
             </div>
         </div>
@@ -648,6 +664,105 @@
 
             window.scrollTo(0, 0);
         }
+
+        function toggleFullscreen() {
+            const reader = document.getElementById('reader');
+            const btn = document.getElementById('fullscreen-btn');
+            const icon = document.getElementById('fullscreen-icon');
+            
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                reader.classList.add('fullscreen-mode');
+                btn.classList.add('active');
+                icon.textContent = '⛶';
+                // Start auto-scroll by default when entering fullscreen
+                if (!autoScrollInterval) {
+                    startAutoScroll();
+                }
+            } else {
+                reader.classList.remove('fullscreen-mode');
+                btn.classList.remove('active');
+                icon.textContent = '⛶';
+                stopAutoScroll();
+            }
+        }
+
+        function toggleAutoScroll() {
+            if (autoScrollInterval) {
+                stopAutoScroll();
+            } else {
+                startAutoScroll();
+            }
+        }
+
+        function startAutoScroll() {
+            const toggleBtn = document.getElementById('scroll-toggle');
+            const reader = document.getElementById('reader');
+            
+            stopAutoScroll(); // Clear any existing interval
+            
+            autoScrollInterval = setInterval(() => {
+                const scrollAmount = scrollSpeed * 0.5;
+                reader.scrollTop += scrollAmount;
+                
+                // Check if reached bottom
+                if (reader.scrollHeight - reader.scrollTop <= reader.clientHeight + 50) {
+                    // Auto-advance to next chapter if available
+                    if (currentChapterIndex < sortedChapterKeys.length - 1) {
+                        stopAutoScroll();
+                        setTimeout(() => {
+                            navigateChapter('next');
+                            if (isFullscreen) {
+                                setTimeout(() => startAutoScroll(), 500);
+                            }
+                        }, 1000);
+                    } else {
+                        stopAutoScroll();
+                    }
+                }
+            }, 50);
+            
+            toggleBtn.textContent = '⏸ Pause Auto-Scroll';
+            toggleBtn.classList.remove('paused');
+        }
+
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+            const toggleBtn = document.getElementById('scroll-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = '▶ Start Auto-Scroll';
+                toggleBtn.classList.add('paused');
+            }
+        }
+
+        // Speed control
+        document.addEventListener('DOMContentLoaded', () => {
+            const speedInput = document.getElementById('scroll-speed');
+            const speedValue = document.getElementById('speed-value');
+            
+            if (speedInput) {
+                speedInput.addEventListener('input', (e) => {
+                    scrollSpeed = parseInt(e.target.value);
+                    speedValue.textContent = scrollSpeed;
+                    
+                    // Restart auto-scroll with new speed if active
+                    if (autoScrollInterval) {
+                        startAutoScroll();
+                    }
+                });
+            }
+        });
+
+        // Exit fullscreen on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isFullscreen) {
+                toggleFullscreen();
+            }
+        });
 
         // Load chapters when page loads
         loadChapters();
