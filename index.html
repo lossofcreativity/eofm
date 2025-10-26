@@ -133,6 +133,92 @@
             font-size: 1.1em;
         }
 
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.05);
+            color: #c4b5fd;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+        }
+
+        .nav-btn.active {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+        }
+
+        .characters-section {
+            display: none;
+        }
+
+        .characters-section.active {
+            display: block;
+        }
+
+        .character-card {
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .character-name {
+            font-size: 1.8em;
+            color: #a78bfa;
+            margin-bottom: 5px;
+        }
+
+        .character-role {
+            color: #c4b5fd;
+            font-style: italic;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .character-details {
+            color: #e5e7eb;
+            line-height: 1.8;
+        }
+
+        .character-details ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .character-details li {
+            margin-bottom: 8px;
+        }
+
+        .character-catchphrase {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 3px solid #8b5cf6;
+            border-radius: 5px;
+            font-style: italic;
+            color: #c4b5fd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         .loading {
             text-align: center;
             padding: 60px 20px;
@@ -174,6 +260,11 @@
             <p class="subtitle">A Light Novel Journey</p>
         </header>
 
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showSection('chapters')">📚 Chapters</button>
+            <button class="nav-btn" onclick="showSection('characters')">👥 Characters</button>
+        </div>
+
         <div id="chapter-count" class="chapter-count"></div>
         <div id="chapter-list" class="chapter-list">
             <div class="loading">
@@ -181,6 +272,84 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
                 <h3>Loading chapters...</h3>
+            </div>
+        </div>
+
+        <div id="characters-section" class="characters-section">
+            <div class="character-card">
+                <div class="character-name">Riku Takahashi</div>
+                <div class="character-role">Main Character</div>
+                <div class="character-details">
+                    <ul>
+                        <li>Once ruled a high school gang in Osaka — feared, yet respected.</li>
+                        <li>After a severe accident, he loses all memory of his violent past.</li>
+                        <li>Transfers to a Tokyo high school as a quiet, polite student.</li>
+                        <li>Everyone sees him as a nerdy transfer student, but old instincts sometimes surface.</li>
+                        <li>He's caught between who he was and who he wants to be.</li>
+                    </ul>
+                    <div class="character-catchphrase">
+                        💬 "I don't remember my past… but my fists do."
+                    </div>
+                </div>
+            </div>
+
+            <div class="character-card">
+                <div class="character-name">Aoi Minazuki</div>
+                <div class="character-role">Main Heroine</div>
+                <div class="character-details">
+                    <ul>
+                        <li>Class representative in Tokyo school; smart, calm, and beautiful.</li>
+                        <li>Initially dislikes Riku for his lazy attitude.</li>
+                        <li>Slowly discovers his fighting skills and hidden kindness.</li>
+                        <li>Has a mysterious connection to his past (maybe she knew him before the accident?).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="character-card">
+                <div class="character-name">Ren Kurobane</div>
+                <div class="character-role">Tokyo School King</div>
+                <div class="character-details">
+                    <ul>
+                        <li>Tokyo's strongest delinquent — cold, disciplined, and proud.</li>
+                        <li>Sees Riku as a threat to his dominance.</li>
+                        <li>Becomes an eventual ally after several clashes.</li>
+                        <li>Son of the school chairman and one of the richest men in Tokyo.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="character-card">
+                <div class="character-name">Daichi Sato</div>
+                <div class="character-role">Comic Relief / Best Friend (Tokyo)</div>
+                <div class="character-details">
+                    <ul>
+                        <li>Overconfident but cowardly.</li>
+                        <li>Helps Riku navigate school life, often making things worse.</li>
+                        <li>Tries to act tough but always hides behind Riku when fights break out.</li>
+                    </ul>
+                    <div class="character-catchphrase">
+                        💬 "Riku! You're supposed to study, not suplex the senior!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="character-card">
+                <div class="character-name">Haruto Shiba</div>
+                <div class="character-role">Best Friend (Osaka)</div>
+                <div class="character-details">
+                    <ul>
+                        <li>Riku's childhood friend and right-hand man back in Osaka.</li>
+                        <li>Calm, loyal, and intelligent — the brain to Riku's brawn.</li>
+                        <li>Took over their old gang after Riku's accident to protect their name.</li>
+                        <li>Feels betrayed, believing Riku abandoned their brotherhood.</li>
+                        <li>When he hears rumors about Riku's return in Tokyo, he goes to confront him.</li>
+                        <li>Feared by enemies, respected by allies — the shadow of Riku's forgotten past.</li>
+                    </ul>
+                    <div class="character-catchphrase">
+                        💬 "You may have forgotten who you are, but I never will."
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -286,6 +455,29 @@
             document.getElementById('reader').classList.remove('active');
             document.getElementById('chapter-list').style.display = 'grid';
             document.getElementById('chapter-count').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function showSection(section) {
+            const chaptersSection = document.getElementById('chapter-list');
+            const charactersSection = document.getElementById('characters-section');
+            const chapterCount = document.getElementById('chapter-count');
+            const buttons = document.querySelectorAll('.nav-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (section === 'chapters') {
+                chaptersSection.style.display = 'grid';
+                charactersSection.classList.remove('active');
+                chapterCount.style.display = 'block';
+                buttons[0].classList.add('active');
+            } else if (section === 'characters') {
+                chaptersSection.style.display = 'none';
+                charactersSection.classList.add('active');
+                chapterCount.style.display = 'none';
+                buttons[1].classList.add('active');
+            }
+
             window.scrollTo(0, 0);
         }
 
