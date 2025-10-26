@@ -651,6 +651,50 @@
 
         // Load chapters when page loads
         loadChapters();
+
+        let currentChapterKey = null;
+
+        function openChapter(chapterKey) {
+            currentChapterKey = chapterKey;
+            const chapter = chapters[chapterKey];
+            
+            document.getElementById('reader-title').textContent = chapter.title;
+            document.getElementById('reader-date').textContent = chapter.date;
+            document.getElementById('reader-content').textContent = chapter.content;
+            
+            document.getElementById('chapter-list').style.display = 'none';
+            document.getElementById('chapter-count').style.display = 'none';
+            document.getElementById('reader').classList.add('active');
+            
+            window.scrollTo(0, 0);
+        }
+        
+        // Navigate to previous or next chapter
+        function navigateChapter(direction) {
+            if (!currentChapterKey) return;
+        
+            const sortedChapters = Object.entries(chapters)
+                .sort((a, b) => a[1].order - b[1].order)
+                .map(([key]) => key);
+        
+            const currentIndex = sortedChapters.indexOf(currentChapterKey);
+            let newIndex;
+        
+            if (direction === 'next') {
+                newIndex = currentIndex + 1;
+                if (newIndex >= sortedChapters.length) newIndex = sortedChapters.length - 1; // stop at last
+            } else if (direction === 'prev') {
+                newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = 0; // stop at first
+            } else {
+                return; // invalid input
+            }
+        
+            if (newIndex !== currentIndex) {
+                openChapter(sortedChapters[newIndex]);
+            }
+        }
+
     </script>
 </body>
 </html>
