@@ -103,6 +103,7 @@
         }
 
         .reader-content {
+            font-family: 'Segoe UI', 'Arial', 'Helvetica', sans-serif;
             font-size: 1.1em;
             line-height: 2;
             text-align: justify;
@@ -238,6 +239,68 @@
             50% { opacity: 0.5; }
         }
 
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2d2d44;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8b5cf6;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a78bfa;
+        }
+
+        /* Firefox Scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #8b5cf6 #2d2d44;
+        }
+
+        .chapter-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chapter-nav-btn {
+            background: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chapter-nav-btn:hover:not(:disabled) {
+            background: rgba(139, 92, 246, 0.4);
+            border-color: #8b5cf6;
+        }
+
+        .chapter-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2em;
@@ -249,6 +312,18 @@
             
             .reader-content {
                 font-size: 1em;
+            }
+
+            .chapter-navigation {
+                flex-direction: column;
+            }
+
+            .nav-group {
+                width: 100%;
+            }
+
+            .chapter-nav-btn {
+                flex: 1;
             }
         }
     </style>
@@ -354,12 +429,33 @@
         </div>
 
         <div id="reader" class="reader">
-            <button class="back-button" onclick="closeReader()">← Back to Chapters</button>
+            <div class="chapter-navigation">
+                <div class="nav-group">
+                    <button class="chapter-nav-btn" id="prev-chapter" onclick="navigateChapter('prev')">
+                        ← Previous
+                    </button>
+                    <button class="back-button" onclick="closeReader()">📚 Chapters</button>
+                </div>
+                <button class="chapter-nav-btn" id="next-chapter" onclick="navigateChapter('next')">
+                    Next →
+                </button>
+            </div>
             <div class="reader-header">
                 <h2 class="reader-title" id="reader-title"></h2>
                 <p class="chapter-date" id="reader-date"></p>
             </div>
             <div class="reader-content" id="reader-content"></div>
+            <div class="chapter-navigation" style="margin-top: 40px;">
+                <div class="nav-group">
+                    <button class="chapter-nav-btn" id="prev-chapter-bottom" onclick="navigateChapter('prev')">
+                        ← Previous
+                    </button>
+                    <button class="back-button" onclick="closeReader()">📚 Chapters</button>
+                </div>
+                <button class="chapter-nav-btn" id="next-chapter-bottom" onclick="navigateChapter('next')">
+                    Next →
+                </button>
+            </div>
         </div>
     </div>
 
