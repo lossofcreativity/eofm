@@ -530,171 +530,168 @@
             </div>
         </div>
     </div>
+<script>
+    const chapters = {};
+    let chapterDates = {};
+    let currentChapterKey = null;
 
-    <script>
-        const chapters = {};
-        const fileList = [];
-
-        async function loadChapters() {
-            // Scan for chapter files
-            const chapterFiles = [
-                'prologue-ln.txt',
-                ...Array.from({length: 100}, (_, i) => `ch${i}.txt`)
-            ];
-
-            for (const fileName of chapterFiles) {
-                try {
-                    const response = await fetch(fileName);
-                    if (response.ok) {
-                        const content = await response.text();
-                        
-                        if (content.trim()) {
-                            let title, order;
-                            
-                            if (fileName.toLowerCase().includes('prologue')) {
-                                title = 'Prologue';
-                                order = -1;
-                            } else if (fileName.match(/ch(\d+)\.txt/i)) {
-                                const chapterNum = parseInt(fileName.match(/ch(\d+)\.txt/i)[1]);
-                                title = `Chapter ${chapterNum + 1}`;
-                                order = chapterNum;
-                            }
-                            
-                            chapters[fileName] = {
-                                title: title,
-                                content: content,
-                                date: new Date().toLocaleDateString(),
-                                order: order
-                            };
-                        }
-                    }
-                } catch (error) {
-                    // File doesn't exist, skip
-                    continue;
-                }
-            }
-
-            renderChapterList();
-        }
-
-        function renderChapterList() {
-            const listDiv = document.getElementById('chapter-list');
-            const countDiv = document.getElementById('chapter-count');
-            
-            const sortedChapters = Object.entries(chapters).sort((a, b) => a[1].order - b[1].order);
-            
-            if (sortedChapters.length === 0) {
-                listDiv.innerHTML = `
-                    <div class="loading">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                        <h3>No chapters found</h3>
-                        <p>Place your chapter files in the same folder as this HTML file</p>
-                    </div>
-                `;
-                return;
-            }
-
-            countDiv.textContent = `${sortedChapters.length} Chapter${sortedChapters.length !== 1 ? 's' : ''} Available`;
-            
-            listDiv.innerHTML = sortedChapters.map(([key, chapter]) => `
-                <div class="chapter-card" onclick="openChapter('${key}')">
-                    <div class="chapter-title">${chapter.title}</div>
-                    <div class="chapter-date">📅 ${chapter.date}</div>
-                </div>
-            `).join('');
-        }
-
-        function openChapter(chapterKey) {
-            const chapter = chapters[chapterKey];
-            document.getElementById('reader-title').textContent = chapter.title;
-            document.getElementById('reader-date').textContent = chapter.date;
-            document.getElementById('reader-content').textContent = chapter.content;
-            
-            document.getElementById('chapter-list').style.display = 'none';
-            document.getElementById('chapter-count').style.display = 'none';
-            document.getElementById('reader').classList.add('active');
-            
-            window.scrollTo(0, 0);
-        }
-
-        function closeReader() {
-            document.getElementById('reader').classList.remove('active');
-            document.getElementById('chapter-list').style.display = 'grid';
-            document.getElementById('chapter-count').style.display = 'block';
-            window.scrollTo(0, 0);
-        }
-
-        function showSection(section) {
-            const chaptersSection = document.getElementById('chapter-list');
-            const charactersSection = document.getElementById('characters-section');
-            const chapterCount = document.getElementById('chapter-count');
-            const buttons = document.querySelectorAll('.nav-btn');
-
-            buttons.forEach(btn => btn.classList.remove('active'));
-
-            if (section === 'chapters') {
-                chaptersSection.style.display = 'grid';
-                charactersSection.classList.remove('active');
-                chapterCount.style.display = 'block';
-                buttons[0].classList.add('active');
-            } else if (section === 'characters') {
-                chaptersSection.style.display = 'none';
-                charactersSection.classList.add('active');
-                chapterCount.style.display = 'none';
-                buttons[1].classList.add('active');
-            }
-
-            window.scrollTo(0, 0);
-        }
-
-        // Load chapters when page loads
-        loadChapters();
-
-        let currentChapterKey = null;
-
-        function openChapter(chapterKey) {
-            currentChapterKey = chapterKey;
-            const chapter = chapters[chapterKey];
-            
-            document.getElementById('reader-title').textContent = chapter.title;
-            document.getElementById('reader-date').textContent = chapter.date;
-            document.getElementById('reader-content').textContent = chapter.content;
-            
-            document.getElementById('chapter-list').style.display = 'none';
-            document.getElementById('chapter-count').style.display = 'none';
-            document.getElementById('reader').classList.add('active');
-            
-            window.scrollTo(0, 0);
-        }
-        
-        // Navigate to previous or next chapter
-        function navigateChapter(direction) {
-            if (!currentChapterKey) return;
-        
-            const sortedChapters = Object.entries(chapters)
-                .sort((a, b) => a[1].order - b[1].order)
-                .map(([key]) => key);
-        
-            const currentIndex = sortedChapters.indexOf(currentChapterKey);
-            let newIndex;
-        
-            if (direction === 'next') {
-                newIndex = currentIndex + 1;
-                if (newIndex >= sortedChapters.length) newIndex = sortedChapters.length - 1; // stop at last
-            } else if (direction === 'prev') {
-                newIndex = currentIndex - 1;
-                if (newIndex < 0) newIndex = 0; // stop at first
+    async function loadChapters() {
+        // Load release dates from JSON file
+        try {
+            const res = await fetch('chapterDates.json');
+            if (res.ok) {
+                chapterDates = await res.json();
             } else {
-                return; // invalid input
+                console.warn("chapterDates.json not found or failed to load");
             }
-        
-            if (newIndex !== currentIndex) {
-                openChapter(sortedChapters[newIndex]);
+        } catch (err) {
+            console.warn("Error loading chapterDates.json:", err);
+        }
+
+        // Define possible chapter file names
+        const chapterFiles = [
+            'prologue-ln.txt',
+            ...Array.from({ length: 100 }, (_, i) => `ch${i}.txt`)
+        ];
+
+        // Fetch chapter files
+        for (const fileName of chapterFiles) {
+            try {
+                const response = await fetch(fileName);
+                if (!response.ok) continue;
+
+                const content = await response.text();
+                if (!content.trim()) continue;
+
+                let title, order;
+
+                if (fileName.toLowerCase().includes('prologue')) {
+                    title = 'Prologue';
+                    order = -1;
+                } else if (fileName.match(/ch(\d+)\.txt/i)) {
+                    const chapterNum = parseInt(fileName.match(/ch(\d+)\.txt/i)[1]);
+                    title = `Chapter ${chapterNum + 1}`;
+                    order = chapterNum;
+                }
+
+                // Use release date from JSON or fallback
+                const releaseDate = chapterDates[fileName] || "Unknown";
+
+                chapters[fileName] = {
+                    title,
+                    content,
+                    date: releaseDate,
+                    order
+                };
+            } catch (err) {
+                // Skip missing or unreadable files
+                continue;
             }
         }
 
-    </script>
+        renderChapterList();
+    }
+
+    function renderChapterList() {
+        const listDiv = document.getElementById('chapter-list');
+        const countDiv = document.getElementById('chapter-count');
+
+        const sortedChapters = Object.entries(chapters)
+            .sort((a, b) => a[1].order - b[1].order);
+
+        if (sortedChapters.length === 0) {
+            listDiv.innerHTML = `
+                <div class="loading">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4
+                            c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h3>No chapters found</h3>
+                    <p>Place your chapter files and chapterDates.json in the same folder as this HTML file</p>
+                </div>
+            `;
+            return;
+        }
+
+        countDiv.textContent = `${sortedChapters.length} Chapter${sortedChapters.length !== 1 ? 's' : ''} Available`;
+
+        listDiv.innerHTML = sortedChapters.map(([key, chapter]) => `
+            <div class="chapter-card" onclick="openChapter('${key}')">
+                <div class="chapter-title">${chapter.title}</div>
+                <div class="chapter-date">📅 ${chapter.date}</div>
+            </div>
+        `).join('');
+    }
+
+    function openChapter(chapterKey) {
+        currentChapterKey = chapterKey;
+        const chapter = chapters[chapterKey];
+
+        document.getElementById('reader-title').textContent = chapter.title;
+        document.getElementById('reader-date').textContent = chapter.date;
+        document.getElementById('reader-content').textContent = chapter.content;
+
+        document.getElementById('chapter-list').style.display = 'none';
+        document.getElementById('chapter-count').style.display = 'none';
+        document.getElementById('reader').classList.add('active');
+
+        window.scrollTo(0, 0);
+    }
+
+    function closeReader() {
+        document.getElementById('reader').classList.remove('active');
+        document.getElementById('chapter-list').style.display = 'grid';
+        document.getElementById('chapter-count').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    function navigateChapter(direction) {
+        if (!currentChapterKey) return;
+
+        const sortedChapters = Object.entries(chapters)
+            .sort((a, b) => a[1].order - b[1].order)
+            .map(([key]) => key);
+
+        const currentIndex = sortedChapters.indexOf(currentChapterKey);
+        let newIndex = currentIndex;
+
+        if (direction === 'next' && currentIndex < sortedChapters.length - 1) {
+            newIndex++;
+        } else if (direction === 'prev' && currentIndex > 0) {
+            newIndex--;
+        }
+
+        if (newIndex !== currentIndex) {
+            openChapter(sortedChapters[newIndex]);
+        }
+    }
+
+    function showSection(section) {
+        const chaptersSection = document.getElementById('chapter-list');
+        const charactersSection = document.getElementById('characters-section');
+        const chapterCount = document.getElementById('chapter-count');
+        const buttons = document.querySelectorAll('.nav-btn');
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        if (section === 'chapters') {
+            chaptersSection.style.display = 'grid';
+            charactersSection.classList.remove('active');
+            chapterCount.style.display = 'block';
+            buttons[0].classList.add('active');
+        } else if (section === 'characters') {
+            chaptersSection.style.display = 'none';
+            charactersSection.classList.add('active');
+            chapterCount.style.display = 'none';
+            buttons[1].classList.add('active');
+        }
+
+        window.scrollTo(0, 0);
+    }
+
+    // Start loading when page opens
+    loadChapters();
+</script>
 </body>
 </html>
