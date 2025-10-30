@@ -532,29 +532,15 @@
     </div>
 <script>
     const chapters = {};
-    let chapterDates = {};
     let currentChapterKey = null;
 
     async function loadChapters() {
-        // Load release dates from JSON file
-        try {
-            const res = await fetch('chapterDates.json');
-            if (res.ok) {
-                chapterDates = await res.json();
-            } else {
-                console.warn("chapterDates.json not found or failed to load");
-            }
-        } catch (err) {
-            console.warn("Error loading chapterDates.json:", err);
-        }
-
-        // Define possible chapter file names
+        // Define all possible chapter files
         const chapterFiles = [
             'prologue-ln.txt',
             ...Array.from({ length: 100 }, (_, i) => `ch${i}.txt`)
         ];
 
-        // Fetch chapter files
         for (const fileName of chapterFiles) {
             try {
                 const response = await fetch(fileName);
@@ -563,8 +549,20 @@
                 const content = await response.text();
                 if (!content.trim()) continue;
 
-                let title, order;
+                // Split file into lines
+                const lines = content.split('\n');
 
+                // Check first line for date tag
+                let releaseDate = "Unknown";
+                if (lines[0].trim().startsWith('#DATE:')) {
+                    releaseDate = lines[0].replace('#DATE:', '').trim();
+                    lines.shift(); // remove the date line
+                }
+
+                const textContent = lines.join('\n').trim();
+
+                // Determine title and order
+                let title, order;
                 if (fileName.toLowerCase().includes('prologue')) {
                     title = 'Prologue';
                     order = -1;
@@ -574,18 +572,14 @@
                     order = chapterNum;
                 }
 
-                // Use release date from JSON or fallback
-                const releaseDate = chapterDates[fileName] || "Unknown";
-
                 chapters[fileName] = {
                     title,
-                    content,
+                    content: textContent,
                     date: releaseDate,
                     order
                 };
             } catch (err) {
-                // Skip missing or unreadable files
-                continue;
+                console.warn(`Error loading ${fileName}:`, err);
             }
         }
 
@@ -604,11 +598,13 @@
                 <div class="loading">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4
-                            c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856
+                            c1.54 0 2.502-1.667 1.732-3L13.732 4
+                            c-.77-1.333-2.694-1.333-3.464 0L3.34 16
+                            c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <h3>No chapters found</h3>
-                    <p>Place your chapter files and chapterDates.json in the same folder as this HTML file</p>
+                    <p>Place your chapter .txt files in the same folder as this HTML file</p>
                 </div>
             `;
             return;
@@ -690,7 +686,7 @@
         window.scrollTo(0, 0);
     }
 
-    // Start loading when page opens
+    // Start loading when the page opens
     loadChapters();
 </script>
 </body>
